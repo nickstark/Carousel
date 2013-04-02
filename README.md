@@ -13,7 +13,7 @@ a bunch of time troubleshooting some random one.
  - Firefox 19
  - Safari 6
  - iOS 6
- - IE9
+ - IE7+
  - More as soon as I get my hands on them.
 
 ## Disclaimer
