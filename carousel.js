@@ -38,21 +38,30 @@
      *
      * @param {DOMElement} el Slide container
      */
-    var Carousel = function(el) {
+    var Carousel = function(el, options) {
         this.$container = $(el);
         this.$el = this.$container.wrap('<div>').parent().addClass('carousel-wrap');
         this.$slides = this.$container.children();
         this.size = this.$slides.length;
         this.currentIndex = 0;
-        this.speed = 400;
+        this.settings = $.extend({
+            speed: 400,
+            pagination: false,
+            controls: true,
+            touch: true
+        }, options);
         this.transitioning = false;
         this.pageX = 0;
         this.currentOffset = 0;
 
         this._setSize();
         this._detectSupport();
-        this._initControls();
-        this._initPagination();
+        if (this.settings.controls) {
+            this._initControls();
+        }
+        if (this.settings.pagination) {
+            this._initPagination();
+        }
         this._update();
         this._bind();
         this.onWindowResize(); // get initial settings
@@ -110,26 +119,31 @@
      */
     Carousel.prototype._bind = function() {
         var self = this;
-        self.$controls.on('click', '.carousel-control', function(e) {
-            e.preventDefault();
-            var $control = $(this);
 
-            if ($control.hasClass('is-disabled')) {
-                return;
-            }
+        if (self.settings.controls) {
+            self.$controls.on('click', '.carousel-control', function(e) {
+                e.preventDefault();
+                var $control = $(this);
 
-            if ($control.hasClass('carousel-prev')) {
-                self.prev();
-            } else {
-                self.next();
-            }
-        });
+                if ($control.hasClass('is-disabled')) {
+                    return;
+                }
 
-        self.$pagination.on('click', 'a', function(e) {
-            e.preventDefault();
-            var index = $(this).parent().index();
-            self.goToSlide(index);
-        });
+                if ($control.hasClass('carousel-prev')) {
+                    self.prev();
+                } else {
+                    self.next();
+                }
+            });
+        }
+
+        if (self.settings.pagination) {
+            self.$pagination.on('click', 'a', function(e) {
+                e.preventDefault();
+                var index = $(this).parent().index();
+                self.goToSlide(index);
+            });
+        }
 
         if (typeof TouchEvent !== "undefined") {
             self.$container.on('touchstart', $.proxy(self.onTouchStart, self));
@@ -150,21 +164,25 @@
      */
     Carousel.prototype._update = function() {
         var index = this.currentIndex;
-        var controls = this.$controls.children();
+        var controls;
 
         // update slides
         this.$slides.removeClass('is-current').eq(index).addClass('is-current');
 
         // update disabled state
-        controls.removeClass('is-disabled');
-        if (index === 0) {
-            controls.filter('.carousel-prev').addClass('is-disabled');
-        } else if (index === this.size - 1) {
-            controls.filter('.carousel-next').addClass('is-disabled');
+        if (this.settings.controls) {
+            controls = this.$controls.children().removeClass('is-disabled');
+            if (index === 0) {
+                controls.filter('.carousel-prev').addClass('is-disabled');
+            } else if (index === this.size - 1) {
+                controls.filter('.carousel-next').addClass('is-disabled');
+            }
         }
 
         // update pagination
-        this.$pagination.children().removeClass('is-current').eq(index).addClass('is-current');
+        if (this.settings.pagination) {
+            this.$pagination.children().removeClass('is-current').eq(index).addClass('is-current');
+        }
     };
 
     /**
@@ -304,7 +322,7 @@
         var endState = {
             'left': offset + '%'
         };
-        var transitionSpeed = (self.speed * diff) + 'ms';
+        var transitionSpeed = (self.settings.speed * diff) + 'ms';
 
         if (self.transitioning) {
             return;
@@ -330,7 +348,7 @@
         } else {
             self.$container.animate(
                 endState,
-                self.speed * diff,
+                self.settings.speed * diff,
                 function() {
                     self.onAnimationComplete.call(self, offset, index);
                 }
