@@ -8,6 +8,10 @@ a bunch of time troubleshooting some random one.
  - Touch? Check.
  - CSS Transitions? Check.
 
+## Why doesn't it...?
+
+The goal is to have a solid foundation to build from, not a bloated plugin that claims to do everything. It should do stuff you expect from a carousel and nothing more.
+
 ## And you've tested in...?
  - Chrome 25
  - Firefox 19
@@ -15,6 +19,13 @@ a bunch of time troubleshooting some random one.
  - iOS 6
  - IE7+
  - More as soon as I get my hands on them.
+
+## What's left?
+ - Test on Andoid
+ - Test in older/obscure browsers
+ - It could use some accessibility-ing
+ - Doesn't register swipes, just drags
+ - Make the demo pretty
 
 ## Disclaimer
 
