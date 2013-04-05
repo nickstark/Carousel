@@ -1,6 +1,6 @@
 # Carousel
 
-Yeah, I know. Another carousel. Mostly for personal use so I don't have to spend 
+Yeah, I know. Another carousel. Mostly for personal use so I don't have to spend
 a bunch of time troubleshooting some random one.
 
 ## So what does it do?
@@ -24,7 +24,6 @@ The goal is to have a solid foundation to build from, not a bloated plugin that 
  - Test on Andoid
  - Test in older/obscure browsers
  - It could use some accessibility-ing
- - Doesn't register swipes, just drags
  - Make the demo pretty
 
 ## Disclaimer
