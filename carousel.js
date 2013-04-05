@@ -44,8 +44,10 @@
         this.$slides = this.$container.children();
         this.size = this.$slides.length;
         this.currentIndex = 0;
+        this.targetIndex = 0;
         this.settings = $.extend({
-            speed: 400,
+            speed: 600,
+            swipeThreshold: 20,
             pagination: false,
             controls: true,
             touch: true
@@ -223,10 +225,16 @@
         // only swipe for one finger
         if (event.originalEvent.touches.length === 1) {
             touch = event.originalEvent.touches[0];
+            this.touchstarted = true;
             this.touchstartY = touch.pageY;
             this.touchstartX = touch.pageX;
+            this.touchstartT = Date.now();
             this.pageX = parseInt(this.$container.css('left'), 10) || 0;
             this.currentOffset = this._getPercentage(this.pageX);
+            if (this.transitioning) {
+                // stop current animation, css transitions
+                this.onAnimationComplete(this.currentOffset, this.targetIndex);
+            }
             this.timer = win.requestAnimationFrame($.proxy(this.animationUpdate, this));
         }
     };
@@ -256,13 +264,27 @@
      * @param {Event} event Touch event
      */
     Carousel.prototype.onTouchEnd = function(event) {
-        var touch, dx, pos;
-        if (event.originalEvent.touches.length === 0) {
+        var touch, dx, dt, pos;
+        if (event.originalEvent.touches.length === 0 && this.touchstarted) {
+            this.touchstarted = false;
             win.cancelAnimationFrame(this.timer);
             touch = event.originalEvent.changedTouches[0];
             dx = touch.pageX - this.touchstartX;
+            dt = Date.now() - this.touchstartT;
             this.currentOffset = this._getPercentage(this.pageX + dx);
-            pos = Math.round(this.currentOffset / -100);
+
+            // detect a swipe
+            if (dt < 200 && Math.abs(dx) > this.settings.swipeThreshold) {
+                if (dx > this.settings.swipeThreshold) {
+                    pos = this.currentIndex - 1;
+                } else {
+                    pos = this.currentIndex + 1;
+                }
+            } else {
+                // go to nearest slide if not a swipe
+                pos = Math.round(this.currentOffset / -100);
+            }
+
             this.goToSlide(pos);
         }
     };
@@ -329,6 +351,7 @@
         }
 
         self.transitioning = true;
+        self.targetIndex = index;
 
         if (self.supportsTransition) {
             if (offset === self.currentOffset) {
